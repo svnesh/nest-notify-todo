@@ -32,11 +32,15 @@ export class UserService {
   }
 
   async getAllUsers() {
-    return this.prismaService.user.findMany();
+    return this.prismaService.user.findMany({
+      omit: { password: true, },
+      where: { deletedAt: null }
+    });
   }
 
   async getUserById(id: number) {
     return this.prismaService.user.findUnique({
+      omit: { password: true, },
       where: { userId: id, deletedAt: null }
     })
   }
@@ -50,6 +54,7 @@ export class UserService {
       throw new Error('User not found');
     }
     return this.prismaService.user.update({
+      omit: { password: true, },
       where: { userId: id },
       data: updateUserDto
     })
@@ -61,6 +66,7 @@ export class UserService {
       throw new Error('User not found');
     }
     return this.prismaService.user.update({
+      omit: { password: true, },
       where: { userId: id },
       data: { deletedAt: new Date() }
     })
