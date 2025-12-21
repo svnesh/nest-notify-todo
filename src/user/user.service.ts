@@ -51,7 +51,7 @@ export class UserService {
   async updateUser(
     id: number,
     updateUserDto: UpdateUserDto
-  ) {
+  ) {    
     const updatingUser = this.findUserById(id);
     if (!updatingUser) {
       throw new HttpException('User not found', 404);
