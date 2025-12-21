@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -17,7 +17,7 @@ export class UserService {
 
     const existingUser = await this.getUserByEmail(email);
     if (existingUser) {
-      throw new Error('User with this email already exists');
+      throw new HttpException('User with this email already exists', 409);
     }
 
     const hashedPassword = await this.hashPassword(password);
@@ -39,19 +39,22 @@ export class UserService {
   }
 
   async getUserById(id: number) {
-    return this.prismaService.user.findUnique({
-      omit: { password: true, },
-      where: { userId: id, deletedAt: null }
-    })
-  }
+    return this.findUserById(id)
+      .then((user) => {
+        if (!user) {
+          throw new HttpException('User not found', 404);
+        }
+        return user;
+      })    
+    }
 
   async updateUser(
     id: number,
     updateUserDto: UpdateUserDto
   ) {
-    const updatingUser = await this.getUserById(id);
+    const updatingUser = this.findUserById(id);
     if (!updatingUser) {
-      throw new Error('User not found');
+      throw new HttpException('User not found', 404);
     }
     return this.prismaService.user.update({
       omit: { password: true, },
@@ -61,9 +64,9 @@ export class UserService {
   }
 
   async deleteUser(id: number) {
-    const deletingUser = await this.getUserById(id);
+    const deletingUser = this.findUserById(id);
     if (!deletingUser) {
-      throw new Error('User not found');
+      throw new HttpException('User not found', 404);
     }
     return this.prismaService.user.update({
       omit: { password: true, },
@@ -81,6 +84,13 @@ export class UserService {
   hashPassword(password: string): Promise<string> {
     const saltRounds = 10;
     return bcrypt.hash(password, saltRounds);
+  }
+
+  findUserById(id: number) {
+    return this.prismaService.user.findUnique({
+      omit: { password: true, },
+      where: { userId: id, deletedAt: null }
+    });
   }
 
 }
