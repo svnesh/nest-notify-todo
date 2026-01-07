@@ -1,6 +1,8 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
+import { UpdateTodoDto } from './dto/update-todo.dto';
+import { constructResponse, paginate } from 'src/utils/pagination';
 
 @Injectable()
 export class TodoService {
@@ -12,7 +14,6 @@ export class TodoService {
     createTodoDto: CreateTodoDto,
     owner: any,
   ) {
-    console.log('owner=>', owner);
     const todoExists = await this.prismaService.todo.findMany({
       where: { title: createTodoDto.title, deletedAt: null },
     });
@@ -30,5 +31,41 @@ export class TodoService {
       },
     });
   }
+
+  async updateTodo(
+    todoId: number,
+    updateTodoDto: UpdateTodoDto, 
+    owner: any,
+  ) {
+    const todo = await this.prismaService.todo.findFirst({
+      where: { todoId: todoId, deletedAt: null, ownerId: owner.userId}
+    });
+    if(!todo) {
+      throw new HttpException('Todo not found.', 404);
+    }
+    return this.prismaService.todo.update({
+      where: { todoId: todoId },
+      data: {
+        title: updateTodoDto.title || todo.title,
+        description: updateTodoDto.description || todo.description,
+        completed: updateTodoDto.completed !== undefined ? updateTodoDto.completed : todo.completed,
+      },
+    });
+  }
   
+  async getAllTodos(
+    owner: any, pageDetails: any,
+  ) {
+    const { skip, limit: pageSize } = paginate(pageDetails.page, pageDetails.limit);
+    const totalItems = await this.prismaService.todo.count({
+      where: { deletedAt: null, ownerId: owner.userId}
+    });
+    
+    const items = await this.prismaService.todo.findMany({
+      where: { deletedAt: null, ownerId: owner.userId},
+      skip,
+      take: Number(pageSize)  
+    });
+    return constructResponse(items, totalItems, pageSize, pageDetails.page);
+  }
 }
