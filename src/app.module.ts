@@ -1,11 +1,10 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
-import { JwtModule } from '@nestjs/jwt';
 import { TodoModule } from './todo/todo.module';
 
 @Module({
@@ -18,7 +17,8 @@ import { TodoModule } from './todo/todo.module';
   ],
   controllers: [AppController],
   providers: [
-    AppService,    
+    AppService,   
+    Logger, 
   ],
 })
 export class AppModule {}
