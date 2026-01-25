@@ -3,7 +3,9 @@ import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './utils/all-exceptions.filter';
 import { loggerInstance } from './utils/logger';
 import { WinstonModule } from 'nest-winston';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { mapValidtionToErrorCode } from './utils/map-error-code';
+import { ErrorCode } from './utils/error-code';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -11,7 +13,29 @@ async function bootstrap() {
       instance: loggerInstance,
     }),
   });
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({
+
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+
+    exceptionFactory: (errors) => {
+      const mappedMessages = errors.map((err) => {
+        const field = err.property;
+        const constraintKey = err.constraints ? Object.keys(err.constraints!)[0] : 'unknown';
+        
+        return {
+          field, 
+          errorCode: mapValidtionToErrorCode(field, constraintKey),
+          message: err.constraints ? err.constraints[constraintKey] : 'Invalid value',
+        }
+      })
+      return new BadRequestException({
+        errorCode: ErrorCode.VALIDATION_ERROR,
+        errors: mappedMessages,
+      });
+    }    
+  }));
   app.useGlobalFilters(new AllExceptionsFilter(loggerInstance));
   app.enableCors();
 
