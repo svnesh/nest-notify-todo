@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { constructResponse, paginate } from 'src/utils/pagination';
+import { ErrorCode } from 'src/utils/error-code';
 
 @Injectable()
 export class TodoService {
@@ -41,7 +42,7 @@ export class TodoService {
       where: { todoId: todoId, deletedAt: null, ownerId: owner.userId}
     });
     if(!todo) {
-      throw new HttpException('Todo not found.', 404);
+      throw new HttpException(ErrorCode.TODO_NOT_FOUND, 404);
     }
     return this.prismaService.todo.update({
       where: { todoId: todoId },
