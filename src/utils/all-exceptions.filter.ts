@@ -17,16 +17,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
     const message = exception instanceof HttpException ? exception.getResponse() : "Internal Server Error";
 
-     this.logger.error({
-      message: `${request.method} ${request.url} ${(exception as Error).message || JSON.stringify(exception)}`,
-      traceId: (exception as Error).stack,
-      format: winstonErrorFormat,
-    });
+    if(process.env.NODE_ENV === 'production') {
+      this.logger.error({
+       message: `${request.method} ${request.url} ${(exception as Error).message || JSON.stringify(exception)}`,
+       traceId: (exception as Error).stack,
+       format: winstonErrorFormat,
+     });
+    }
 
     response.status(status).json({
       success: false,
       statusCode: status,
-      errorCode: message,
+      // errorCode: message,
       timestamp: new Date().toISOString(),
       path: request.url,
       message: message

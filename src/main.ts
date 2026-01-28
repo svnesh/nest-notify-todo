@@ -5,7 +5,7 @@ import { loggerInstance } from './utils/logger';
 import { WinstonModule } from 'nest-winston';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { mapValidtionToErrorCode } from './utils/map-error-code';
-import { ErrorCode } from './utils/error-code';
+import { ErrorCode } from './shared/constants/error-code';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {

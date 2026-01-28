@@ -3,12 +3,16 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { constructResponse, paginate } from 'src/utils/pagination';
-import { ErrorCode } from 'src/utils/error-code';
+import { ErrorCode } from 'src/shared/constants/error-code';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { CreateEventInterface } from 'src/shared/interface/create-event.interface';
+import { EntityTypeEnum, } from 'src/shared/constants/enums';
 
 @Injectable()
 export class TodoService {
   constructor(
     private readonly prismaService: PrismaService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async createTodo(
@@ -30,7 +34,16 @@ export class TodoService {
         completed: createTodoDto.completed || false,
         ownerId: owner.userId,
       },
-    });
+    })
+    .then(async (todo) => {
+      const eventData: CreateEventInterface = {
+        entityId: todo.todoId,
+        entityType: EntityTypeEnum.TODO,
+        ownerId: owner.userId,  
+        metadata: todo
+      } 
+      this.eventEmitter.emit('todo.created', eventData);
+    })
   }
 
   async updateTodo(
@@ -69,4 +82,19 @@ export class TodoService {
     });
     return constructResponse(items, totalItems, pageSize, pageDetails.page);
   }
+
+  async deleteTodo(
+    todoId: number,
+    owner: any) {
+      const todo = await this.prismaService.todo.findFirst({
+        where: { todoId: todoId, deletedAt: null, ownerId: owner.userId}
+      });
+      if(!todo) {
+        throw new HttpException(ErrorCode.TODO_NOT_FOUND, 404);
+      }
+      return this.prismaService.todo.update({
+        where: { todoId: todoId },
+        data: { deletedAt: new Date() },
+      });
+    }
 }

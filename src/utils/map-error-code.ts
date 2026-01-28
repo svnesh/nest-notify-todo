@@ -1,4 +1,4 @@
-import { ErrorCode } from "./error-code";
+import { ErrorCode } from "../shared/constants/error-code";
 
 
 export function mapValidtionToErrorCode(

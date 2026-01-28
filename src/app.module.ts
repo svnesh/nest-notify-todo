@@ -8,14 +8,18 @@ import { AuthModule } from './auth/auth.module';
 import { TodoModule } from './todo/todo.module';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './utils/all-exceptions.filter';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    EventEmitterModule.forRoot(),
     UserModule,
     PrismaModule,
     AuthModule,
     TodoModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [
