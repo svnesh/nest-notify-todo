@@ -1,17 +1,39 @@
-import * as winston from "winston";
-import { winstonConsoleFormat, winstonCustomFormat, winstonErrorFormat } from "./winston.format";
-
+import * as winston from 'winston';
+import {
+  winstonConsoleFormat,
+  winstonCustomFormat,
+  winstonErrorFormat,
+} from './winston.format';
 
 const isDevlopment = process.env.NODE_ENV === 'dev';
-const winstonTransports = { 
-  'dev': [new winston.transports.Console({ format: winstonConsoleFormat })],
-  'prod': [new winston.transports.Console({ format: winstonConsoleFormat }),
-      new winston.transports.File({ filename: 'error.log', level: 'error', format: winstonErrorFormat }),
-      new winston.transports.File({ filename: 'combined.log', format: winstonCustomFormat }),
-    ]
-  };
+const winstonTransports = {
+  dev: [
+    new winston.transports.Console({
+      format: winstonConsoleFormat,
+      level: 'info',
+    }),
+    new winston.transports.Console({
+      format: winstonErrorFormat,
+      level: 'error',
+    }),
+  ],
+  prod: [
+    new winston.transports.Console({ format: winstonConsoleFormat }),
+    new winston.transports.File({
+      filename: 'error.log',
+      level: 'error',
+      format: winstonErrorFormat,
+    }),
+    new winston.transports.File({
+      filename: 'combined.log',
+      format: winstonCustomFormat,
+    }),
+  ],
+};
 
 export const loggerInstance = winston.createLogger({
-    level: 'info',
-    transports: isDevlopment ? winstonTransports['dev'] : winstonTransports['prod'],
-  });
+  level: 'info',
+  transports: isDevlopment
+    ? winstonTransports['dev']
+    : winstonTransports['prod'],
+});
