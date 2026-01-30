@@ -7,14 +7,15 @@ import { JwtService } from '@nestjs/jwt';
 export class AuthService {
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly jwtService: JwtService,
+    private readonly jwtService: JwtService
   ) {}
 
   async login(email: string, password: string) {
     const user = await this.prismaService.user.findUnique({
-      where: { 
+      where: {
         email,
-        deletedAt: null },
+        deletedAt: null,
+      },
     });
 
     if (!user) {
@@ -25,11 +26,18 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { sub: user.userId, username: user.name, email: user.email };
+    const payload = {
+      sub: user.userId,
+      username: user.name,
+      email: user.email,
+    };
     return {
-      access_token: await this.jwtService.signAsync(
-        payload,
-      ),
-    }   
+      access_token: await this.jwtService.signAsync(payload),
+      user: {
+        userId: user.userId,
+        name: user.name,
+        email: user.email,
+      },
+    };
   }
 }

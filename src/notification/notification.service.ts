@@ -1,10 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
+import { UserService } from 'src/user/user.service';
+import { ErrorCode } from 'src/shared/constants/error-code';
 
 @Injectable()
 export class NotificationService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly userService: UserService
+  ) {}
 
   async createBulkNotification(createNotificationDto: CreateNotificationDto[]) {
     if (createNotificationDto.length === 0) {
@@ -45,5 +50,28 @@ export class NotificationService {
     } catch (err) {
       throw err;
     }
+  }
+
+  async getUserNotifications(userId: number) {
+    const user = await this.userService.findUserById(userId);
+    if (!user) {
+      throw new HttpException(ErrorCode.USER_NOT_FOUND, 404);
+    }
+
+    return this.prismaService.notification.findMany({
+      where: {
+        toUserId: userId,
+        deletedAt: null,
+        isRead: false,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        toUser: {
+          select: { name: true, email: true },
+        },
+      },
+    });
   }
 }
