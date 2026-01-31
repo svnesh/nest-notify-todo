@@ -58,20 +58,38 @@ export class NotificationService {
       throw new HttpException(ErrorCode.USER_NOT_FOUND, 404);
     }
 
-    return this.prismaService.notification.findMany({
-      where: {
-        toUserId: userId,
-        deletedAt: null,
-        isRead: false,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      include: {
-        toUser: {
-          select: { name: true, email: true },
+    return this.prismaService.notification
+      .findMany({
+        where: {
+          toUserId: userId,
+          deletedAt: null,
+          isRead: false,
         },
-      },
-    });
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          toUser: {
+            select: { name: true, email: true },
+          },
+        },
+      })
+      .then((notifications) => notifications.map((n) => this.httpResponse(n)));
   }
+
+  httpResponse = (notifyData) => {
+    return {
+      id: notifyData.notificationId,
+      type: notifyData.entityType,
+      message: notifyData.metaInfo?.title || '',
+      entityId: notifyData.entityId,
+      isRead: notifyData.isRead,
+      createdAt: notifyData.createdAt,
+      user: {
+        id: notifyData.toUserId,
+        name: notifyData.toUser?.name || '',
+        email: notifyData.toUser?.email || '',
+      },
+    };
+  };
 }
