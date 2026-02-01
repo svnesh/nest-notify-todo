@@ -20,7 +20,8 @@ model User {
   password String
   name  String?  
   todos Todo[]
-  notifications Notification[]
+  receivers Notification[]  @relation("Receiver")
+  sender  Notification[]  @relation("Actor")
   createdAt DateTime  @default(now()) @db.Timestamptz(3)
   deletedAt DateTime? @db.Timestamptz(3)
   updatedAt DateTime  @updatedAt @db.Timestamptz(3)
@@ -41,7 +42,9 @@ model Todo {
 
 model Notification {
   notificationId  Int  @default(autoincrement()) @id
-  toUser User         @relation(fields: [toUserId], references: [userId])
+  actor User         @relation("Actor", fields: [actorId], references: [userId])
+  actorId Int
+  toUser User         @relation("Receiver", fields: [toUserId], references: [userId])
   toUserId  Int
   entityType  String
   entity  Todo        @relation(fields: [entityId], references: [todoId])
@@ -50,5 +53,5 @@ model Notification {
   isRead  Boolean     @default(false)
   createdAt DateTime  @default(now()) @db.Timestamptz(3)
   deletedAt DateTime? @db.Timestamptz(3)
-  updatedAt DateTime  @updatedAt @db.Timestamptz(3)
+  updatedAt DateTime?  @db.Timestamptz(3)
 }

@@ -16,10 +16,16 @@ export class NotificationService {
       return;
     }
     return this.prismaService.notification.createMany({
-      data: createNotificationDto.map((dto) => ({
-        ...dto,
-        metaInfo: dto.metaInfo || {},
-      })),
+      data: createNotificationDto.map(
+        (dto) =>
+          ({
+            entityType: dto.entityType,
+            entityId: dto.entityId,
+            toUserId: dto.toUserId,
+            actorId: dto.ownerId,
+            metaInfo: dto.metaInfo || {},
+          }) as any
+      ),
       skipDuplicates: true,
     });
   }
