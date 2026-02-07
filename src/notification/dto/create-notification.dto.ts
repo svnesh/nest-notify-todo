@@ -3,5 +3,5 @@ export class CreateNotificationDto {
   toUserId: number;
   entityType: string;
   ownerId: number;
-  metaInfo?: any;
+  metaInfo?: Record<string, any>;
 }

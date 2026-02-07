@@ -4,7 +4,7 @@ import { TodoService } from './todo.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { JwtService } from '@nestjs/jwt';
 import { MyAppEventListener } from 'src/shared/eventlistener/myapp-event-listener';
-import { NotificationService } from 'src/notification/notification.service';
+import { NotificationPersistenceService } from 'src/notification/notification-persistence.service';
 import { UserService } from 'src/user/user.service';
 
 @Module({
@@ -13,7 +13,7 @@ import { UserService } from 'src/user/user.service';
     TodoService,
     JwtService,
     MyAppEventListener,
-    NotificationService,
+    NotificationPersistenceService,
     UserService,
   ],
   imports: [PrismaModule],

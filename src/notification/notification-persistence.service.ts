@@ -3,27 +3,25 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UserService } from 'src/user/user.service';
 import { ErrorCode } from 'src/shared/constants/error-code';
+import { NotificationPayload } from './notification.payload';
 
 @Injectable()
-export class NotificationService {
+export class NotificationPersistenceService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly userService: UserService
   ) {}
 
-  async createBulkNotification(createNotificationDto: CreateNotificationDto[]) {
-    if (createNotificationDto.length === 0) {
-      return;
-    }
+  async store(payload: NotificationPayload) {
     return this.prismaService.notification.createMany({
-      data: createNotificationDto.map(
-        (dto) =>
+      data: payload.receipientIds.map(
+        (receipientId) =>
           ({
-            entityType: dto.entityType,
-            entityId: dto.entityId,
-            toUserId: dto.toUserId,
-            actorId: dto.ownerId,
-            metaInfo: dto.metaInfo || {},
+            entityType: payload.entityType,
+            entityId: payload.entityId,
+            toUserId: receipientId,
+            actorId: payload.ownerId,
+            metaInfo: payload.metadata || {},
           }) as any
       ),
       skipDuplicates: true,

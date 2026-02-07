@@ -54,4 +54,6 @@ model Notification {
   createdAt DateTime  @default(now()) @db.Timestamptz(3)
   deletedAt DateTime? @db.Timestamptz(3)
   updatedAt DateTime?  @db.Timestamptz(3)
+
+  @@unique([entityId, entityType, toUserId])
 }

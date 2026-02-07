@@ -1,12 +1,12 @@
 import { OnEvent } from '@nestjs/event-emitter';
-import { NotificationService } from 'src/notification/notification.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
+import { NotificationPublisher } from 'src/notification/notification.publisher';
 
 @Injectable()
 export class MyAppEventListener {
   constructor(
-    private readonly notificationService: NotificationService,
+    private readonly notificationPublisher: NotificationPublisher,
     private readonly prismaService: PrismaService
   ) {}
 
@@ -16,18 +16,14 @@ export class MyAppEventListener {
     const users = await this.prismaService.user.findMany({
       where: { userId: { not: ownerId }, deletedAt: null },
     });
-    let notifyList: any[] = [];
-    users.map((user) => {
-      const notify = {
-        entityId: entityId,
-        entityType: entityType,
-        toUserId: user.userId,
-        ownerId: ownerId,
-        metaInfo: metadata,
-        createdAt: new Date(),
-      };
-      notifyList.push(notify);
-    });
-    await this.notificationService.createBulkNotification(notifyList);
+    const receipientIds = users.map((user) => user.userId);
+    const notifyList = {
+      entityId,
+      entityType,
+      ownerId,
+      metadata,
+      receipientIds,
+    };
+    await this.notificationPublisher.publish(notifyList);
   }
 }
