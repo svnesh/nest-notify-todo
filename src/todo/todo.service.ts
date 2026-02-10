@@ -5,7 +5,7 @@ import { UpdateTodoDto } from './dto/update-todo.dto';
 import { constructResponse, paginate } from 'src/utils/pagination';
 import { ErrorCode } from 'src/shared/constants/error-code';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { CreateEventInterface } from 'src/shared/interface/create-event.interface';
+import { CreateEventInterface } from 'src/shared/interface/event.interface';
 import { EntityTypeEnum } from 'src/shared/constants/enums';
 
 @Injectable()
@@ -51,17 +51,27 @@ export class TodoService {
     if (!todo) {
       throw new HttpException(ErrorCode.TODO_NOT_FOUND, 404);
     }
-    return this.prismaService.todo.update({
-      where: { todoId: todoId },
-      data: {
-        title: updateTodoDto.title || todo.title,
-        description: updateTodoDto.description || todo.description,
-        completed:
-          updateTodoDto.completed !== undefined
-            ? updateTodoDto.completed
-            : todo.completed,
-      },
-    });
+    return this.prismaService.todo
+      .update({
+        where: { todoId: todoId },
+        data: {
+          title: updateTodoDto.title || todo.title,
+          description: updateTodoDto.description || todo.description,
+          completed:
+            updateTodoDto.completed !== undefined
+              ? updateTodoDto.completed
+              : todo.completed,
+        },
+      })
+      .then((updatedTodo) => {
+        const eventData: CreateEventInterface = {
+          entityId: updatedTodo.todoId,
+          entityType: EntityTypeEnum.TODO,
+          ownerId: updatedTodo.ownerId!,
+          metadata: { ...updatedTodo, previousData: todo },
+        };
+        this.eventEmitter.emit('todo.updated', eventData);
+      });
   }
 
   async getAllTodos(owner: any, pageDetails: any) {

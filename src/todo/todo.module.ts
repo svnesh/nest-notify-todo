@@ -6,6 +6,7 @@ import { JwtService } from '@nestjs/jwt';
 import { MyAppEventListener } from 'src/shared/eventlistener/myapp-event-listener';
 import { NotificationPersistenceService } from 'src/notification/notification-persistence.service';
 import { UserService } from 'src/user/user.service';
+import { NotificationPublisher } from 'src/notification/notification.publisher';
 
 @Module({
   controllers: [TodoController],
@@ -15,6 +16,7 @@ import { UserService } from 'src/user/user.service';
     MyAppEventListener,
     NotificationPersistenceService,
     UserService,
+    NotificationPublisher,
   ],
   imports: [PrismaModule],
 })
