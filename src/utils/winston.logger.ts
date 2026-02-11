@@ -10,7 +10,7 @@ const winstonTransports = {
   dev: [
     new winston.transports.Console({
       format: winstonConsoleFormat,
-      level: 'info',
+      level: 'silly',
     }),
     new winston.transports.Console({
       format: winstonErrorFormat,
@@ -32,7 +32,7 @@ const winstonTransports = {
 };
 
 export const loggerInstance = winston.createLogger({
-  level: 'info',
+  level: 'silly',
   transports: isDevlopment
     ? winstonTransports['dev']
     : winstonTransports['prod'],

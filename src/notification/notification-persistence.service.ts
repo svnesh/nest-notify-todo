@@ -13,6 +13,7 @@ export class NotificationPersistenceService {
   ) {}
 
   async store(payload: NotificationPayload) {
+    console.log('payload=>', payload);
     return this.prismaService.notification.createMany({
       data: payload.receipientIds.map(
         (receipientId) =>

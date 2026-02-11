@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
@@ -10,6 +10,7 @@ import { EntityTypeEnum } from 'src/shared/constants/enums';
 
 @Injectable()
 export class TodoService {
+  private readonly logger = new Logger(TodoService.name);
   constructor(
     private readonly prismaService: PrismaService,
     private eventEmitter: EventEmitter2
@@ -51,6 +52,16 @@ export class TodoService {
     if (!todo) {
       throw new HttpException(ErrorCode.TODO_NOT_FOUND, 404);
     }
+    const titleExists = await this.prismaService.todo.findMany({
+      where: {
+        title: updateTodoDto.title,
+        deletedAt: null,
+      },
+    });
+    if (titleExists.length > 0) {
+      throw new HttpException(ErrorCode.TODO_TITLE_EXISTS, 400);
+    }
+
     return this.prismaService.todo
       .update({
         where: { todoId: todoId },

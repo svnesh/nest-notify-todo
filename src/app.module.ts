@@ -1,4 +1,4 @@
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -6,15 +6,15 @@ import { UserModule } from './user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { TodoModule } from './todo/todo.module';
-import { APP_FILTER } from '@nestjs/core';
-import { AllExceptionsFilter } from './utils/all-exceptions.filter';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { NotificationModule } from './notification/notification.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggingInterceptor } from './shared/interceptors/logging.interceptor';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    EventEmitterModule.forRoot(),
+    EventEmitterModule.forRoot({ wildcard: true }),
     UserModule,
     PrismaModule,
     AuthModule,
@@ -23,8 +23,12 @@ import { NotificationModule } from './notification/notification.module';
   ],
   controllers: [AppController],
   providers: [
-    AppService,   
-    Logger, 
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+    AppService,
+    Logger,
   ],
 })
 export class AppModule {}

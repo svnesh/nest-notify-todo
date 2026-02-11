@@ -10,8 +10,9 @@ export class MyAppEventListener {
     private readonly prismaService: PrismaService
   ) {}
 
-  @OnEvent('todo.created', { async: true })
+  @OnEvent('todo.*', { async: true })
   async handleTodoCreatedEvent(eventData: any) {
+    console.log('eventData=>', eventData);
     const { entityId, entityType, ownerId, metadata } = eventData;
     const users = await this.prismaService.user.findMany({
       where: { userId: { not: ownerId }, deletedAt: null },
