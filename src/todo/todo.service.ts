@@ -6,7 +6,7 @@ import { constructResponse, paginate } from 'src/utils/pagination';
 import { ErrorCode } from 'src/shared/constants/error-code';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CreateEventInterface } from 'src/shared/interface/event.interface';
-import { EntityTypeEnum } from 'src/shared/constants/enums';
+import { EntityTypeEnum, TodoEnum } from 'src/shared/constants/enums';
 
 @Injectable()
 export class TodoService {
@@ -36,12 +36,13 @@ export class TodoService {
       })
       .then(async (todo) => {
         const eventData: CreateEventInterface = {
+          event: TodoEnum.TODO_CREATED,
           entityId: todo.todoId,
           entityType: EntityTypeEnum.TODO,
           ownerId: todo.ownerId!,
           metadata: todo,
         };
-        this.eventEmitter.emit('todo.created', eventData);
+        this.eventEmitter.emit(TodoEnum.TODO_CREATED, eventData);
       });
   }
 
@@ -76,12 +77,13 @@ export class TodoService {
       })
       .then((updatedTodo) => {
         const eventData: CreateEventInterface = {
+          event: TodoEnum.TODO_UPDATED,
           entityId: updatedTodo.todoId,
           entityType: EntityTypeEnum.TODO,
           ownerId: updatedTodo.ownerId!,
           metadata: { ...updatedTodo, previousData: todo },
         };
-        this.eventEmitter.emit('todo.updated', eventData);
+        this.eventEmitter.emit(TodoEnum.TODO_UPDATED, eventData);
       });
   }
 

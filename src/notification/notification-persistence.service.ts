@@ -1,6 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UserService } from 'src/user/user.service';
 import { ErrorCode } from 'src/shared/constants/error-code';
 import { NotificationPayload } from './notification.payload';
@@ -13,12 +12,12 @@ export class NotificationPersistenceService {
   ) {}
 
   async store(payload: NotificationPayload) {
-    console.log('payload=>', payload);
     return this.prismaService.notification.createMany({
       data: payload.receipientIds.map(
         (receipientId) =>
           ({
             entityType: payload.entityType,
+            event: payload.event,
             entityId: payload.entityId,
             toUserId: receipientId,
             actorId: payload.ownerId,
