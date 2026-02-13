@@ -12,7 +12,6 @@ export class MyAppEventListener {
 
   @OnEvent('todo.*', { async: true })
   async handleTodoCreatedEvent(eventData: any) {
-    console.log('eventData=>', eventData);
     const { event, entityId, entityType, ownerId, metadata } = eventData;
     const users = await this.prismaService.user.findMany({
       where: { userId: { not: ownerId }, deletedAt: null },
