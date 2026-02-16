@@ -10,6 +10,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { NotificationModule } from './notification/notification.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggingInterceptor } from './shared/interceptors/logging.interceptor';
+import { NotificationGateway } from './gateway/notification.gateway';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { LoggingInterceptor } from './shared/interceptors/logging.interceptor';
     },
     AppService,
     Logger,
+    NotificationGateway,
   ],
 })
 export class AppModule {}

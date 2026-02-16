@@ -6,6 +6,7 @@ import { WinstonModule } from 'nest-winston';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { mapValidtionToErrorCode } from './utils/map-error-code';
 import { ErrorCode } from './shared/constants/error-code';
+import { WsAdapter } from '@nestjs/platform-ws';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -42,6 +43,7 @@ async function bootstrap() {
     })
   );
   app.useGlobalFilters(new AllExceptionsFilter(loggerInstance));
+  app.useWebSocketAdapter(new WsAdapter(app));
   app.enableCors();
 
   await app.listen(process.env.PORT ?? 3000);
