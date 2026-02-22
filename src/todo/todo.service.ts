@@ -39,7 +39,7 @@ export class TodoService {
           event: TodoEnum.TODO_CREATED,
           entityId: todo.todoId,
           entityType: EntityTypeEnum.TODO,
-          ownerId: todo.ownerId!,
+          ownerId: owner,
           metadata: todo,
         };
         this.eventEmitter.emit(TodoEnum.TODO_CREATED, eventData);

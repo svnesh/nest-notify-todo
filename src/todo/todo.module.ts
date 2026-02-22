@@ -7,6 +7,7 @@ import { MyAppEventListener } from 'src/shared/eventlistener/myapp-event-listene
 import { NotificationPersistenceService } from 'src/notification/notification-persistence.service';
 import { UserService } from 'src/user/user.service';
 import { NotificationPublisher } from 'src/notification/notification.publisher';
+import { NotificationGateway } from 'src/gateway/notification.gateway';
 
 @Module({
   controllers: [TodoController],
@@ -17,6 +18,7 @@ import { NotificationPublisher } from 'src/notification/notification.publisher';
     NotificationPersistenceService,
     UserService,
     NotificationPublisher,
+    NotificationGateway,
   ],
   imports: [PrismaModule],
 })

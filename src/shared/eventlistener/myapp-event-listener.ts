@@ -14,7 +14,7 @@ export class MyAppEventListener {
   async handleTodoCreatedEvent(eventData: any) {
     const { event, entityId, entityType, ownerId, metadata } = eventData;
     const users = await this.prismaService.user.findMany({
-      where: { userId: { not: ownerId }, deletedAt: null },
+      where: { userId: { not: ownerId.userId }, deletedAt: null },
     });
     const receipientIds = users.map((user) => user.userId);
     const notifyList = {
@@ -26,5 +26,6 @@ export class MyAppEventListener {
       receipientIds,
     };
     await this.notificationPublisher.publish(notifyList);
+    await this.notificationPublisher.sendSocketNotification(notifyList);
   }
 }

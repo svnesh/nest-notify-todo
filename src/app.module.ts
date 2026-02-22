@@ -11,6 +11,7 @@ import { NotificationModule } from './notification/notification.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggingInterceptor } from './shared/interceptors/logging.interceptor';
 import { NotificationGateway } from './gateway/notification.gateway';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { NotificationGateway } from './gateway/notification.gateway';
       useClass: LoggingInterceptor,
     },
     AppService,
+    JwtService,
     Logger,
     NotificationGateway,
   ],

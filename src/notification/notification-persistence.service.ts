@@ -20,7 +20,7 @@ export class NotificationPersistenceService {
             event: payload.event,
             entityId: payload.entityId,
             toUserId: receipientId,
-            actorId: payload.ownerId,
+            actorId: payload.ownerId.userId,
             metaInfo: payload.metadata || {},
           }) as any
       ),
